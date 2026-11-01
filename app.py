@@ -437,12 +437,19 @@ a.ct-card:hover span{color:var(--sakura);text-decoration:underline;text-underlin
   object-fit:cover!important;object-position:center;border:0;border-radius:0!important;margin:0;}
 .pimg .ph{border-radius:0;transition:transform .6s ease;}
 .pcard:hover .pimg .ph{transform:scale(1.04);}
+/* Bouncy pop-up: diputar ulang setiap kali elemen masuk layar.
+   Pakai keyframes (bukan transition) agar posisi asli elemen tidak bergeser -> tidak berkedip. */
+@keyframes pop{
+  from{opacity:0;transform:translateY(26px) scale(.98);}
+  to{opacity:1;transform:none;}
+}
 @media (prefers-reduced-motion:no-preference){
-  .reveal-on .rv{opacity:0;transform:translateY(48px) scale(.94);
-    transition:opacity .6s ease,transform .75s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,border-color .3s ease;}
-  .reveal-on .rv.in{opacity:1;transform:none;}
-  .reveal-on .pf .xcard.in:hover,.reveal-on .pf .pcard.in:hover,
-  .reveal-on .pf .tool-card.in:hover,.reveal-on .pf .more-card.in:hover{transform:translateY(-4px);}
+  .reveal-on .rv:not(.in){opacity:0;}
+  .reveal-on .rv.in{opacity:1;animation:pop .65s cubic-bezier(.25,.9,.35,1.06) backwards;}
+  /* kartu bersebelahan muncul berurutan */
+  .reveal-on .tool-card.in:nth-child(2),.reveal-on .more-card.in:nth-child(2),.reveal-on .xgrid .xcard.in:nth-child(2){animation-delay:.06s;}
+  .reveal-on .tool-card.in:nth-child(3),.reveal-on .more-card.in:nth-child(3){animation-delay:.12s;}
+  .reveal-on .tool-card.in:nth-child(4){animation-delay:.18s;}
 }
 
 a:focus-visible,button:focus-visible{outline:3px solid var(--sakura);outline-offset:2px;}
@@ -719,14 +726,13 @@ render(
 REVEAL_JS = """
 if (!window.__rvInit) {
   window.__rvInit = true;
+  // Tambah 'in' saat >=12% terlihat; cabut saat sepenuhnya keluar layar -> animasi main lagi tiap scroll
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
-      if (e.isIntersecting || e.boundingClientRect.top < 0) {
-        e.target.classList.add('in');
-        io.unobserve(e.target);
-      }
+      if (e.intersectionRatio >= 0.12) e.target.classList.add('in');
+      else if (!e.isIntersecting) e.target.classList.remove('in');
     });
-  }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' });
+  }, { threshold: [0, 0.12], rootMargin: '0px 0px -6% 0px' });
   const scan = () => document.querySelectorAll('.rv:not(.in):not([data-rv])').forEach((el) => {
     el.setAttribute('data-rv', '1');
     io.observe(el);
