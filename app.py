@@ -46,8 +46,8 @@ PROFILE = {
         "Information Systems fresh graduate with hands-on experience in data analysis, "
         "dashboard development, reporting, and operational support. I analyze data with "
         "Power BI, Looker Studio, Python, and Google Colab to find trends, patterns, and "
-        "insights people can act on. My foundation in SQL, KPI monitoring, and data "
-        "visualization comes from internships, research, and international programs. "
+        "insights people can act on. My foundation in Data "
+        "Visualization comes from internships, research, and international programs. "
         "I'm detail-oriented, analytical, and adaptable, with a strong interest in "
         "supporting data-driven operational decisions and process improvement."
     ),
@@ -56,8 +56,8 @@ PROFILE = {
 QUICK_FACTS = [
     ("Education", "B.Sc. Information Systems, ITS (GPA 3.47 / 4.00)"),
     ("Based in", "Surakarta, Indonesia"),
-    ("Languages", "Indonesian (native), English (high intermediate)"),
-    ("Open to", "Full-time roles, internships, and collaborations"),
+    ("Languages", "Indonesian (Native), English (High Intermediate)"),
+    ("Open to", "Full-time Roles, Internships, and Collaborations"),
 ]
 
 CORE_TOOLS = ["Python", "SQL", "Power BI", "Looker Studio", "Pandas", "Google Colab"]
@@ -94,7 +94,7 @@ EXPERIENCE = [
         "photos": ["experience/iprospect-1", "experience/iprospect-2", "experience/iprospect-3"],
     },
     {
-        "role": "Research Exchange Intern (IOMS Scholarship)",
+        "role": "Research Exchange Intern (Data Science Laboratory)",
         "org": "Shibaura Institute of Technology",
         "place": "Tokyo, Japan",
         "date": "Mar 2026",
@@ -183,7 +183,7 @@ PROJECTS = [
         "tech": ["Figma"],
         "type": "College Project",
         "org": "Institut Teknologi Sepuluh Nopember",
-        "summary": "",
+        "summary": "A UX design for an app that makes parking at ITS easier. It also works as a community lost-and-found, where users can chat to post news about items they lost or found.",
         "links": {
             "Project Link": "https://www.figma.com/design/3BrI340mv7p5SSA4J1fh9P/ITS-Park?t=5jErTI7W4tJZUw0G-1",
             "Project Video": "https://youtu.be/HNAMLyXxmH8?si=m1Q2Nibt9eudorkc",
@@ -192,12 +192,12 @@ PROJECTS = [
     },
     {
         "date": "December 2024",
-        "title": "Class Data Dashboard",
+        "title": "University Admission Dashboard",
         "category": "Data Analytics Dashboard",
         "tech": ["Power BI", "Pentaho"],
         "type": "College Project",
         "org": "Institut Teknologi Sepuluh Nopember",
-        "summary": "",
+        "summary": "A dashboard for monitoring students applying to a university, covering test scores, region of origin, parents’ data, and selection status.",
         "links": {"Project Link": "https://drive.google.com/file/d/1V8dYLExzxrj_8-bqkKqM_Pq31hcxZ3Ti/view?usp=sharing"},
         "image": "projects/class-dashboard",
     },
@@ -246,7 +246,13 @@ GLOBAL_LEARNING = [
         "org": "Saga University",
         "place": "Saga, Japan",
         "date": "Nov 2024",
-        "bullets": ["Explored Japanese culture, tourism management, and urban and regional planning."],
+        "bullets": [
+            "Explored Japanese culture, tourism management, and urban and regional planning through a short study program at Saga University.",
+            "Learned the Japanese language during the program.",
+            "Learned about community and local culture, including how people in Japan interact and communicate with each other.",
+            "Built cross-cultural communication skills by interacting with people from different cultural backgrounds, which helps me collaborate with diverse teams and stakeholders.",
+            "Improved public speaking and communication skills through discussions and group activities, which supports presenting findings and ideas clearly to non-technical audiences.",
+        ],
         "tags": [],
         "photos": ["experience/saga-1", "experience/saga-2", "experience/saga-3"],
     }
@@ -662,7 +668,7 @@ render(
 )
 
 # Professional experience
-section("experience", "Professional experience", "Internships and programs where I worked with real data.")
+section("experience", "Professional experience", "Internships and programs where I worked.")
 render_cards(EXPERIENCE)
 
 # Projects
