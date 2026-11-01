@@ -4,11 +4,15 @@ Jalankan:  streamlit run app.py
 Gambar    : taruh di folder assets/ (lihat panduan di chat)
 """
 
+from __future__ import annotations
+
 import base64
 import json
+from io import BytesIO
 from pathlib import Path
 
 import streamlit as st
+from PIL import Image, ImageOps
 
 st.set_page_config(
     page_title="Shine Quinn Firdaus | Portfolio",
@@ -90,8 +94,8 @@ EXPERIENCE = [
         "photos": ["experience/iprospect-1", "experience/iprospect-2", "experience/iprospect-3"],
     },
     {
-        "role": "Research Exchange Intern (Data Science Laboratory)",
-        "org": "Shibaura Institute of Technology Japan",
+        "role": "Research Exchange Intern (IOMS Scholarship)",
+        "org": "Shibaura Institute of Technology",
         "place": "Tokyo, Japan",
         "date": "Mar 2026",
         "bullets": [
@@ -358,6 +362,7 @@ html{scroll-behavior:smooth;}
   display:grid;grid-template-columns:1.1fr 1fr;gap:2.2rem;align-items:center;}
 .xtext{min-width:0;}
 .xcard.solo{grid-template-columns:1fr;}
+.pf .xcard,.pf .pcard{margin-bottom:.4rem;}
 .xgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.4rem;}
 .xmeta{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin-bottom:.9rem;}
 .tl-date{font-size:.8rem;font-weight:600;color:var(--rose);background:var(--sakura-soft);padding:.3rem .75rem;border-radius:999px;white-space:nowrap;}
@@ -433,7 +438,7 @@ a.ct-card:hover span{color:var(--sakura);text-decoration:underline;text-underlin
 .pimg .ph{border-radius:0;transition:transform .6s ease;}
 .pcard:hover .pimg .ph{transform:scale(1.04);}
 @media (prefers-reduced-motion:no-preference){
-  .reveal-on .rv{opacity:0;transform:translateY(48px) scale(.94);will-change:opacity,transform;
+  .reveal-on .rv{opacity:0;transform:translateY(48px) scale(.94);
     transition:opacity .6s ease,transform .75s cubic-bezier(.2,.8,.2,1),box-shadow .3s ease,border-color .3s ease;}
   .reveal-on .rv.in{opacity:1;transform:none;}
   .reveal-on .pf .xcard.in:hover,.reveal-on .pf .pcard.in:hover,
@@ -468,20 +473,36 @@ def render(html: str) -> None:
 
 
 @st.cache_data(show_spinner=False)
-def _read_image(path_str: str, mtime: float) -> str:
+def _read_image(path_str: str, mtime: float, max_w: int) -> str:
+    """Perkecil & kompres foto (jadi WebP) lalu jadikan data URI.
+    Foto 5 MB dari kamera/HP -> sekitar 80-200 KB, jadi halaman jauh lebih ringan."""
     path = Path(path_str)
-    mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}[
-        path.suffix.lower().lstrip(".")
-    ]
-    return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
+    try:
+        with Image.open(path) as im:
+            im = ImageOps.exif_transpose(im)  # hormati rotasi dari HP
+            im.thumbnail((max_w, max_w))
+            im = im.convert("RGBA" if "A" in im.getbands() else "RGB")
+            buf = BytesIO()
+            im.save(buf, "WEBP", quality=78, method=4)
+        return f"data:image/webp;base64,{base64.b64encode(buf.getvalue()).decode()}"
+    except Exception:  # file aneh: pakai apa adanya
+        mime = {"jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "webp": "image/webp"}.get(
+            path.suffix.lower().lstrip("."), "image/png"
+        )
+        return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
 
 
-def find_image(stem: str) -> str | None:
-    """Cari assets/<stem>.(jpg|jpeg|png|webp) dan kembalikan data URI."""
-    for ext in IMG_EXTS:
+@st.cache_data(show_spinner=False)
+def _cv_bytes(mtime: float) -> bytes:
+    return (ASSETS / "CV.pdf").read_bytes()
+
+
+def find_image(stem: str, max_w: int = 1200) -> str | None:
+    """Cari assets/<stem>.(jpg|jpeg|png|webp), huruf besar/kecil sama saja."""
+    for ext in IMG_EXTS + tuple(e.upper() for e in IMG_EXTS):
         p = ASSETS / f"{stem}.{ext}"
         if p.exists():
-            return _read_image(str(p), p.stat().st_mtime)
+            return _read_image(str(p), p.stat().st_mtime, max_w)
     return None
 
 
@@ -499,7 +520,7 @@ def gallery(stems, alt: str) -> str:
     for s in stems:
         uri = find_image(s)
         if uri:
-            tiles.append(f'<div class="tile"><img class="ph" src="{uri}" alt="{alt}"/></div>')
+            tiles.append(f'<div class="tile"><img class="ph" src="{uri}" alt="{alt}" loading="lazy" decoding="async"/></div>')
         elif SHOW_PLACEHOLDERS:
             tiles.append(f'<div class="tile"><div class="ph ph-empty"><span>Photo placeholder</span><small>assets/{s}.jpg</small></div></div>')
     return f'<div class="gallery g{min(len(tiles), 3)}">{"".join(tiles[:3])}</div>' if tiles else ""
@@ -524,14 +545,17 @@ def xcard(it) -> str:
 
 
 def render_cards(items, grid=False) -> None:
-    cls = "xgrid" if grid else "xlist"
-    render(f'<div class="pf {cls}">{"".join(xcard(i) for i in items)}</div>')
+    if grid:  # kartu tanpa foto: ringan, satu blok
+        render(f'<div class="pf xgrid">{"".join(xcard(i) for i in items)}</div>')
+    else:  # kartu berfoto: satu elemen per kartu agar tampil bertahap
+        for i in items:
+            render(f'<div class="pf">{xcard(i)}</div>')
 
 
 def pcard(p, idx: int) -> str:
     uri = find_image(p["image"]) if p.get("image") else None
     if uri:
-        img = f'<img class="ph" src="{uri}" alt="{p["title"]}"/>'
+        img = f'<img class="ph" src="{uri}" alt="{p["title"]}" loading="lazy" decoding="async"/>'
     elif SHOW_PLACEHOLDERS:
         img = f'<div class="ph ph-empty"><span>Project screenshot</span><small>assets/{p["image"]}.png</small></div>'
     else:
@@ -579,7 +603,7 @@ render(
 )
 
 # Hero
-photo_uri = find_image("profile")
+photo_uri = find_image("profile", 900)
 photo_html = (
     f'<img src="{photo_uri}" alt="Foto {PROFILE["name"]}"/>' if photo_uri else '<span class="pf-initials">SQ</span>'
 )
@@ -604,7 +628,7 @@ render(
 
 cv_path = ASSETS / "CV.pdf"
 if cv_path.exists():
-    st.download_button("Download CV (PDF)", data=cv_path.read_bytes(), file_name="Shine_Quinn_Firdaus_CV.pdf", mime="application/pdf")
+    st.download_button("Download CV (PDF)", data=_cv_bytes(cv_path.stat().st_mtime), file_name="Shine_Quinn_Firdaus_CV.pdf", mime="application/pdf")
 
 # About
 section("about", "About me")
@@ -640,7 +664,8 @@ render_cards(EXPERIENCE)
 
 # Projects
 section("projects", "Selected projects", "Dashboards, analyses, and apps from internships and college.")
-render(f'<div class="pf plist">{"".join(pcard(p, i) for i, p in enumerate(PROJECTS))}</div>')
+for i, p in enumerate(PROJECTS):
+    render(f'<div class="pf">{pcard(p, i)}</div>')
 
 # Education
 section("education", "Education")
@@ -707,7 +732,12 @@ if (!window.__rvInit) {
     io.observe(el);
   });
   scan();
-  new MutationObserver(scan).observe(document.body, { childList: true, subtree: true });
+  let queued = false;
+  new MutationObserver(() => {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; scan(); });
+  }).observe(document.body, { childList: true, subtree: true });
   document.documentElement.classList.add('reveal-on');
 }
 """
