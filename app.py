@@ -426,17 +426,13 @@ a.ct-card:hover span{color:var(--sakura);text-decoration:underline;text-underlin
 .stDownloadButton button:hover{border-color:var(--indigo);color:var(--indigo);}
 
 /* Pop up saat scroll (aktif hanya jika JS di bawah berhasil jalan) */
-.xcard,.pcard,.tool-card,.more-card{transition:transform .3s ease,box-shadow .3s ease,border-color .3s ease;}
-.pf .xcard:hover,.pf .pcard:hover,.pf .tool-card:hover,.pf .more-card:hover{
-  transform:translateY(-4px);border-color:#CFCFC6;box-shadow:0 16px 36px rgba(30,30,28,.08);}
 .pimg{position:relative;overflow:hidden;width:100%;aspect-ratio:16/10;border-radius:16px;background:var(--indigo-soft);}
 .tile{position:relative;overflow:hidden;min-height:0;border-radius:12px;background:var(--indigo-soft);}
 /* Foto mengisi frame penuh dan di-crop (seperti frame di Canva), apa pun ukuran aslinya */
 .pimg .ph,.tile .ph{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
   max-width:none!important;max-height:none!important;aspect-ratio:auto!important;
   object-fit:cover!important;object-position:center;border:0;border-radius:0!important;margin:0;}
-.pimg .ph{border-radius:0;transition:transform .6s ease;}
-.pcard:hover .pimg .ph{transform:scale(1.04);}
+.pimg .ph{border-radius:0;}
 /* Bouncy pop-up: diputar ulang setiap kali elemen masuk layar.
    Pakai keyframes (bukan transition) agar posisi asli elemen tidak bergeser -> tidak berkedip. */
 @keyframes pop{
