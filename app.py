@@ -132,7 +132,7 @@ PROJECTS = [
         "title": "Dengue Fever (DBD) Mitigation Dashboard",
         "category": "Data Analytics & Decision Support System",
         "tech": ["Python", "Streamlit", "Decision Tree"],
-        "type": "College Project",
+        "type": "College Final Project",
         "org": "Institut Teknologi Sepuluh Nopember",
         "summary": "A dashboard that shows which handling measures should be prioritized in each region, based on data from X. It uses a decision tree to turn the data into clear decision recommendations.",
         "links": {
