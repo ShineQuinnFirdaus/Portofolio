@@ -133,7 +133,7 @@ PROJECTS = [
         "tech": ["Python", "Streamlit", "Decision Tree"],
         "type": "College Project",
         "org": "Institut Teknologi Sepuluh Nopember",
-        "summary": "",
+        "summary": "A dashboard that shows which handling measures should be prioritized in each region, based on data from X. It uses a decision tree to turn the data into clear decision recommendations.",
         "links": {
             "Project Link": "https://shinequinnfirdaus-tugas-akhir-streamlitapp-0x42os.streamlit.app/",
             "Presentation Link": "https://canva.link/5osauqtxa83cs5y",
