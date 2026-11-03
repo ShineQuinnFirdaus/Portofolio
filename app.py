@@ -16,7 +16,7 @@ from PIL import Image, ImageOps
 
 st.set_page_config(
     page_title="Shine Quinn Firdaus | Portfolio",
-    page_icon="📊",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -99,6 +99,7 @@ EXPERIENCE = [
         "place": "Tokyo, Japan",
         "date": "Mar 2026",
         "bullets": [
+            "IOMS Scholarship awardee for the research exchange program at Shibaura Institute of Technology.",
             "Researched data science and text data analysis, applying Gaussian Mixture Models (GMM) and Sentence-BERT (SBERT) to real-world datasets under faculty supervision.",
             "Supported research activities including data preparation, analysis, and interpretation of findings.",
             "Collaborated in an international laboratory, contributing to cross-cultural research practices and academic discussions.",
