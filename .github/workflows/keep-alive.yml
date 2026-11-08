@@ -1,0 +1,50 @@
+name: Keep Streamlit Awake
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"   # tiap 6 jam (waktu UTC)
+  workflow_dispatch:          # bisa dijalankan manual dari tab Actions
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Link app Streamlit kamu
+      APP_URL: "https://portofolio-quinn.streamlit.app/"
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          pip install playwright
+          playwright install --with-deps chromium
+
+      - name: Open the app like a real visitor
+        run: |
+          python - <<'PY'
+          import os
+          from playwright.sync_api import sync_playwright
+
+          url = os.environ["APP_URL"]
+          with sync_playwright() as p:
+              browser = p.chromium.launch()
+              page = browser.new_page()
+              page.goto(url, wait_until="domcontentloaded", timeout=120_000)
+              page.wait_for_timeout(8_000)
+
+              # Jika app sedang tidur, klik tombol bangun
+              wake = page.get_by_role("button", name="Yes, get this app back up!")
+              if wake.count() > 0:
+                  print("App tertidur -> klik tombol bangun")
+                  wake.first.click()
+                  page.wait_for_timeout(60_000)
+              else:
+                  print("App sudah aktif")
+
+              # Tetap di halaman sebentar agar tercatat sebagai kunjungan
+              page.wait_for_timeout(20_000)
+              browser.close()
+          PY
